@@ -1,6 +1,3 @@
-//Participante 1: Sandra Pita Piñón   || Correo: sandra.pita1@udc.es
-//Participante 2: Candela Naya López  || Correo: candela.naya.lopez@udc.es
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
