@@ -5,7 +5,6 @@
 typedef struct prio_mutex_t{
     pthread_mutex_t lock;
     int locked;
-    pthread_t owner;
     int max_prios;
     int *waiting;
     pthread_cond_t *conds;
