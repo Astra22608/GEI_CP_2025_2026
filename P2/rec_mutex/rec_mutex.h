@@ -3,7 +3,6 @@
 
 typedef struct rec_mutex_t {
     pthread_mutex_t mutex;
-    pthread_t owner;
     int count;
 }rec_mutex_t;
 
