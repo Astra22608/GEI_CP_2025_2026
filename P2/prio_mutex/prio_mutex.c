@@ -45,7 +45,6 @@ int prio_mutex_lock(prio_mutex_t *m, int prio) {
     }
     m -> waiting[prio]--;
     m -> locked = 1;
-    m -> owner = pthread_self();
     pthread_mutex_unlock(&m -> lock);
     return 0;
 }
@@ -75,7 +74,6 @@ int prio_mutex_trylock(prio_mutex_t *m) {
     }
 
     m -> locked = 1;
-    m -> owner = pthread_self(); //ME FALTABA ESTO.
     pthread_mutex_unlock(&m -> lock);
     return 0;
 }
