@@ -6,4 +6,7 @@ La P1, P2 y P3 son pertenecientes a la parte de Concurrencia de la asignatura, m
 
 NOTAS:  
 · P1 -> 7.5/10  
-· P2 -> 9.3/10
+· P2 -> 9.3/10  
+· P3 -> 10/10  
+· P4 y P5 (defensa conjunta) -> 7.3/10
+
