@@ -1,0 +1,56 @@
+P3 -> CP
+
+Nuevas operaciones colectivas:
+FUNCIONAMIENTO
+	Scatter. -> P0 			P1			P2
+	int* L =[0,1,2,3,4,5]      int* y = [2,3]            int* y = [4,5]   
+	
+	int* y = [0,1]
+	
+	MPIS (y, 2, MPLINT,L,2,MPLINT,0,MCW)
+Queremos recoleactar todos los procesos para que se muestren en conjunto.
+A no ser que hagamos algo raro, estas comunicaciones tienen una limitación, que nos obligan a recolectar la misma cantidad de datos de todos los procesos.
+
+PRÁCTICA: (la primera práctica que parece que sirve para algo y que realmente se usa en la vida real).
+
+Nos dan un código para descargar, donde ese código hace lo siguiente:
+	Un conjunto M con N letras, y otro conjunto M con otras N letras, entonces, cogera las secuencias y las compara, devolviendo un número, que será el número de similares que son. Paralelo.
+
+Complicación: scatter permite llevar la misma cantidad de datos, en el caso de no tener un número que sea multiplo del numero de procesos -> Resolucion de 3 formas diferentes.
+
+Formas solucionarlo: (las tres permiten tener la puntuacion máxima, pero tener claro cual usamos para poder defenderla).
+
+M = 5
+P = 3 -> M no es múltiplo de P (número procesos).
+
+1- Resto.
+	Nos olvidamos del resto, distribuiremos a cada procesos la division a la baja.
+	F = [M/P] = [1]
+	Entonces cada proceso debera procesar lo que de la division (a la baja), y lo que sobra se lo damos al proceso 0. Como vamos a tratar con muchos datos, por unos pocos que nos queden nos da igual.
+
+2- Padding.
+	Contrario de resto, nos quedamos con la división a la alta.
+	En el caso anterior, en vez de enviar 1, enviaremos 2 a cada proceso, entonces en vez de reservar para 5, reservamos para 6, que estara llena de datos basura. Gracias a esta fila nueva, podremos enviar 2 filas a cada proceso. Los resultados basura los tendra en memoria, pero los descartara. (Es algo mas molesta que la primera).
+	
+3- MPIScatter V y MPI_GatcherV.
+	El parametro count cuenta los número que enviamos y otro count donde indicamos que datos enviamos (desde que posicion enviamos los datos).
+	
+	count [2,2,1]
+	dis [0,2,4]    -> todo esto lo remplazamos por el count principal.
+	
+	Es lo que usaria en un caso mas real, pero es mucho mas complicada, entonces mejor hacerla SOLO si tenemos muy clara que tenemos bien la pracica.
+	
+PETICIONES OBLIGATORIAS:
+SPMD.
+Inicialización de la matriz SOLO en el proceso 0, por lo tanto, tendra que tener la memoria suficiente para poder guardarla. No reservar en el resto de procesos, solo en el raiz, si no descuentan puntos.
+
+Distribuir los datos.
+
+Los printfs, solo los hace el proceso 0 (excepcion: imprimir lo que tardan por separado). Esto es tanto para el computo como para las comunicaciones. Para el resto, solo el proceso 0 debera mandar los printfs.
+
+CUIDADO CON LA GESTION DE MEMORIA.
+
+Este profe quiere que usemos IA sandra :).
+
+COGER EL CODIGO QUE NOS DAN.
+
