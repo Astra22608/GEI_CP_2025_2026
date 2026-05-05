@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <math.h>
+#include <sys/time.h>
 #include <mpi.h>
 
 #define DEBUG 0
@@ -12,8 +12,8 @@
    T -> 3
    N -> 4*/
 
-#define M  1000000 // Number of sequences
-#define N  200  // Number of bases per sequence
+#define M 1000000 // Number of sequences
+#define N 200 // Number of bases per sequence
 
 unsigned int g_seed = 0;
 
@@ -22,99 +22,121 @@ int fast_rand(void) {
     return (g_seed>>16) % 5;
 }
 
-// The distance between two bases
 int base_distance(int base1, int base2){
-  if((base1 == 4) || (base2 == 4)){
-    return 3;
-  }
-  if(base1 == base2) {
-    return 0;
-  }
-  if((base1 == 0) && (base2 == 3)) {
-    return 1;
-  }
-  if((base2 == 0) && (base1 == 3)) {
-    return 1;
-  }
-  if((base1 == 1) && (base2 == 2)) {
-    return 1;
-  }
-  if((base2 == 2) && (base1 == 1)) {
-    return 1;
-  }
+  if((base1 == 4) || (base2 == 4)) return 3;
+  if(base1 == base2) return 0;
+  if((base1 == 0 && base2 == 3) || (base1 == 3 && base2 == 0)) return 1;
+  if((base1 == 1 && base2 == 2) || (base1 == 2 && base2 == 1)) return 1;
   return 2;
 }
 
-int main (int argc, char *argv[]){
-    MPI_Init(&argc, &argv);
+int main(int argc, char *argv[] ) {
 
-    int rank, size;
-    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-    MPI_Comm_size(MPI_COMM_WORLD, &size);
+  int i,j;
+  int *data1 = NULL, *data2 = NULL;
+  int *result = NULL;
+  int *recvbuff1, *recvbuff2;
+  int *local_result;
+  struct timeval tv1, tv2;
+  int numprocs, rank, t_comm = 0, t_comp = 0;
 
-    double t_comm = 0, t_comp = 0, start;
+  MPI_Init(&argc, &argv);
+  MPI_Comm_size(MPI_COMM_WORLD, &numprocs);
+  MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
-    int rows_per_proc = M / size;
-    int remainder = M % size;
-    int *send_counts = malloc(size * sizeof(int));
-    int *displs = malloc(size * sizeof(int));
-    int *send_counts_res = malloc(size * sizeof(int));
-    int *displs_res = malloc(size * sizeof(int));
+  int mlocal = M/numprocs;
+  
+  recvbuff1 = (int *) malloc(mlocal*N*sizeof(int));
+  recvbuff2 = (int *) malloc(mlocal*N*sizeof(int));
+  local_result = (int *) malloc(mlocal*sizeof(int));
 
-    int offset = 0;
-    for (int i = 0; i < size; i++) {
-        int rows = rows_per_proc + (i < remainder ? 1 : 0);
-        send_counts[i] = rows * N;
-        displs[i] = offset * N;
-        send_counts_res[i] = rows;
-        displs_res[i] = offset;
-        offset += rows;
+  if(rank == 0){
+    data1 = (int *) malloc(M*N*sizeof(int));
+    data2 = (int *) malloc(M*N*sizeof(int));
+    result = (int *) malloc(M*sizeof(int));
+    
+  /* Initialize Matrices */
+    for(i=0;i<M;i++){
+      for(j=0;j<N;j++){
+        /* random with 20% gap proportion */
+        data1[i*N+j] = fast_rand();
+        data2[i*N+j] = fast_rand();
+      }
     }
+  }
 
-    int my_rows = send_counts_res[rank];
-    int *data1_local = malloc(my_rows * N * sizeof(int));
-    int *data2_local = malloc(my_rows * N * sizeof(int));
-    int *result_local = malloc(my_rows * sizeof(int));
+  gettimeofday(&tv1, NULL);
+  
+  MPI_Scatter(data1, mlocal*N, MPI_INT,recvbuff1, mlocal*N, MPI_INT,0, MPI_COMM_WORLD);
+  MPI_Scatter(data2, mlocal*N, MPI_INT,recvbuff2, mlocal*N, MPI_INT,0, MPI_COMM_WORLD);
 
-    int *data1_full = NULL, *data2_full = NULL, *result_full = NULL;
+  gettimeofday(&tv2, NULL);
 
-    if (rank == 0) {
-        data1_full = malloc(M * N * sizeof(int));
-        data2_full = malloc(M * N * sizeof(int));
-        result_full = malloc(M * sizeof(int));
-        for (int i = 0; i < M * N; i++) {
-            data1_full[i] = fast_rand();
-            data2_full[i] = fast_rand();
+  t_comm += (tv2.tv_usec - tv1.tv_usec) + 1000000*(tv2.tv_sec - tv1.tv_sec);
+
+  gettimeofday(&tv1, NULL);
+
+  for(int i=0;i<mlocal;i++){
+    local_result[i] = 0;
+    for(int j=0;j<N;j++){
+      local_result[i] += base_distance(recvbuff1[i*N+j],recvbuff2[i*N+j]);
+    }
+  }
+
+  gettimeofday(&tv2, NULL);
+
+  t_comp += (tv2.tv_usec - tv1.tv_usec) + 1000000*(tv2.tv_sec - tv1.tv_sec);
+
+  gettimeofday(&tv1, NULL);
+
+  MPI_Gather(local_result, mlocal, MPI_INT,result, mlocal, MPI_INT,0, MPI_COMM_WORLD);
+
+  gettimeofday(&tv2, NULL);
+
+  t_comm += (tv2.tv_usec - tv1.tv_usec) + 1000000*(tv2.tv_sec - tv1.tv_sec);
+
+  if(rank == 0){
+    gettimeofday(&tv1, NULL);
+
+    for(int i = mlocal*numprocs; i < M; i++){
+        result[i] = 0;
+        for(int j=0;j<N;j++){
+            result[i] += base_distance(data1[i*N+j], data2[i*N+j]);
         }
     }
 
-    start = MPI_Wtime();
-    MPI_Scatterv(data1_full, send_counts, displs, MPI_INT, data1_local, my_rows * N, MPI_INT, 0, MPI_COMM_WORLD);
-    MPI_Scatterv(data2_full, send_counts, displs, MPI_INT, data2_local, my_rows * N, MPI_INT, 0, MPI_COMM_WORLD);
-    t_comm += (MPI_Wtime() - start);
+    gettimeofday(&tv2, NULL);
 
-    start = MPI_Wtime();
-    for (int i = 0; i < my_rows; i++) {
-        result_local[i] = 0;
-        for (int j = 0; j < N; j++) {
-            result_local[i] += base_distance(data1_local[i * N + j], data2_local[i * N + j]);
-        }
+    t_comp += (tv2.tv_usec - tv1.tv_usec) + 1000000 * (tv2.tv_sec - tv1.tv_sec);
+  }
+
+  double t_total = (double)t_comm/1E6 + (double)t_comp/1E6;
+  double t_total_max;
+  
+  printf("Proceso %d, Comunication Time (seconds): %lf, Computational Time (seconds): %lf, Total Time (seconds): %lf\n", rank, (double)t_comm/1E6, (double)t_comp/1E6, t_total);
+  
+  MPI_Reduce(&t_total, &t_total_max, 1, MPI_DOUBLE, MPI_MAX, 0, MPI_COMM_WORLD);
+  
+  if(rank == 0){
+    printf("TIEMPO MAYOR\n");
+    printf("Time (seconds) = %lf\n", t_total_max);
+
+    if (DEBUG == 1) {
+      int checksum = 0;
+      for(int i=0;i<M;i++) checksum += result[i];
+      printf("Checksum: %d\n", checksum);
+    } else if (DEBUG == 2) {
+      for(int i=0;i<M;i++) printf("%d \t", result[i]);
     }
-    t_comp += (MPI_Wtime() - start);
+    free(data1);
+    free(data2);
+    free(result);
+  }
 
-    start = MPI_Wtime();
-    MPI_Gatherv(result_local, my_rows, MPI_INT, result_full, send_counts_res, displs_res, MPI_INT, 0, MPI_COMM_WORLD);
-    t_comm += (MPI_Wtime() - start);
+  free(recvbuff1);
+  free(recvbuff2);
+  free(local_result);
 
-    printf("Rank %d: Comm_Time = %f, Comp_Time = %f\n", rank, t_comm, t_comp);
-
-    if (rank == 0) {
-        free(data1_full); free(data2_full); free(result_full);
-    }
-
-    free(data1_local); free(data2_local); free(result_local);
-    free(send_counts); free(displs); free(send_counts_res); free(displs_res);
-
-    MPI_Finalize();
-    return 0;
+  MPI_Finalize();
+  return 0;
 }
