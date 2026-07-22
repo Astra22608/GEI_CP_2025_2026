@@ -1,0 +1,66 @@
+Gather -> recibe en el proceso root un elemento desde todos los procesos del comunicador, sigue la siguiente estructura:
+
+int MPI_Gather(void *buff, int sendcount, MPI_datatype sendtype, void *recvbuff, int recvcount, MPI_Datatype recvtype, void root, MPI_Comm comm);
+//buff: dirección inicial buffer de envio
+//sendcount: nº elementos que van a cada proceso
+//sendtype: tipo de datos del elemento del buffer de envio
+//recvbuff: dirección inicial del buffer de recepeción
+//recvcount: nº de elementos que se espera recibir de cada uno de los procesos
+//recvtype: tipo de dato que se espera recibir en el buffer de entrada
+//root: rango del proceso raiz
+//comm: comunicador por el que se hace la trasnerencia de datos
+
+--------------------------------------------------------------------------------------------
+Scatter -> distribuye elementos de buff desde el proceso root a todos los procesos del comunicador
+
+int MPI_Scatter (void *buff, int sendcount, MPI_Datatype sendtype, void *recvbuff, int recvcount, MPI_Datatype recvtype, int root, MPI_Comm comm);
+//buff: dirección inicial del buffer de envio
+//sendcount: nº elementos que se envia a cada proceso del comm 
+//sendtype: tipo de dato que se va a enviar
+//revbuff: dirección buffer de recepción
+//recvcount: nº elementos que espera recibir cada proceso 
+//recvtype: tipo de dato que se va a recibir
+//root: rango del proceso raiz
+//comm: comunicador por el que realizar la comunicación
+
+--------------------------------------------------------------------------------------------
+Bcast -> comunicación uno a todos, envia un mensaje desde el proceso original pertenecientes al mismo grupo
+
+int MPI_Bcast (void *buff, int count, MPI_Datatype datatype, int root, Mpi_Comm comm);
+//buff: direccion incial del buffer
+//count: nº elementos en el buffer que se van a enviar
+//datatype: tipo de dato de los elementos del buffer 
+//root: rango del proceso que trsnamititra el mensaje
+//comm: comunicador que realiza la transmisión
+
+--------------------------------------------------------------------------------------------
+Reduce -> realiza una reducción todos a uno, reduce los procesos a un unico proceso raíz
+
+int MPI_Reduce (void *buff, void *recvbuff, int count, MPI_Datatype datatype, MPI_Op op, int root, MPI_Comm comm);
+//buff: dirección inicial del buffer de envío
+//recvbuff: dirección inicial del buffer de recepción
+//count: nº elementos a enviar
+//datatype: tipo de datos del buffer de envio
+//op: MPI_{MAX, MIN, SUM, PROD}, MPI_{LAND, LOR, LEXOR}, MPI_{BAND, BOR, BXOR}, MPI_{MAXLOC, MINLOC}
+//root: proceso receptor
+//comm: comunicador por el que se realiza la comunicación
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

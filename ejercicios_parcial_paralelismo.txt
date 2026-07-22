@@ -1,0 +1,431 @@
+Tenemos 4 procesos, cada uno con dos arrays, A y B, de ocho enteros cada uno. Inicialmente los valores de estos arrays son:
+P0 -> A = B = [0, 0, 0, 0, 4, 4, 4, 4]
+P1 -> A = B = [1, 1, 1, 1, 5, 5, 5, 5]
+P2 -> A = B = [2, 2, 2, 2, 6, 6, 6, 6]
+P3 -> A = B = [3, 3, 3, 3, 7, 7, 7, 7]
+
+Despues de que todos los procesos ejecuten una cierta colectiva de MPI el valor de B es (el array A queda igual):
+P0 -> B = [0, 0, 0, 0, 4, 4, 4, 4]
+P1 -> B = [1, 1, 1, 1, 5, 5, 5, 5]
+P2 -> B = [2, 2, 2, 2, 6, 6, 6, 6]
+P3 -> B = [0, 0, 1, 1, 2, 2, 3, 3]
+
+Respuesta:
+Mpi_Gather (A, 2, MPI_INT, B, 2, MPI_INT, 3 , MPI_COMM_WORLD)
+
+Explicación:
+Guarda los dos primeros elemtnos de A de cada proceso en el array B del rpoceso tres ya que ese es el root.
+
+--------------------------------------------------------------------------------------------
+Tenemos cuatro procesos, cada un con dos arrays, A y B, de cuatro enteros cada uno. Inicialmente los valores de estos arrays son:
+P0 -> A = B = [0, 0, 0, 0]
+P1 -> A = B = [1, 1, 1, 1]
+P2 -> A = B = [2, 2, 2, 2]
+P3 -> A = B = [3, 3, 3, 3]
+
+Despues de que todos los procesos ejecuten una cierta colectiva de MPI el valor de B es (el array A queda igual):
+P0 -> B = [0, 0, 3, 0]
+P1 -> B = [1, 1, 3, 1]
+P2 -> B = [2, 2, 3, 2]
+P3 -> B = [3, 3, 3, 3]
+
+Repuesta:
+MPI_Scatter(A, 1, MPI_INT, &B[2], 1, MPI_INT, 3, MPI_COMM_WORLD)
+
+Explicación:
+Envia el primer elemnto del root (proceso tres), a la poscion dos de cada array. Solo en esta posición ya que solo se envia un dato. 
+
+--------------------------------------------------------------------------------------------
+Tenemos cuatro procesos, cada uno con un array A de cuatro enteros. Inicialmente los valores de este array son:
+P0 -> A = [0, 0, 0, 0]
+P1 -> A = [1, 1, 1, 1]
+P2 -> A = [2, 2, 2, 2]
+P3 -> A = [3, 3, 3, 3]
+
+Si todos los procesos ejecutan la siguiente operación colectiva ¿qué valores tendra el proceso 1 en el array A como resultado? 
+MPI_Bcast(&A[2], 2, MPI_INT, 2, MPI_COMM_WORLD)
+
+
+Respuesta:
+[1, 1, 2, 2]
+
+Explicación:
+Empieza a trasnmitir desde la psoción dos asi que enviara los elemntos dos y tres ya que se envian dos elementos. El segundo dos nos dice que es proceso2 el que difunde los datos. Ddo esto todos lor procesos que no sean P2 sobreecribirean los datos en la segunda y tercera posición por los datos en esas mismas posiciones de P2. Por lo que ya que el proceso uno esta todo a unos, se cambaira oara los dos priemros elementos ser unos y los dos segundos elementos ser doses.
+
+--------------------------------------------------------------------------------------------
+Tenemos cuatro procesos, cada uno con dos arrays, A y B, de cuatro enteros cada uno. Inicialmente los valores de estos arrays son:
+P0 -> A = [0, 1, 2, 3], B = [0, 0, 0, 0]
+P1 -> A = [2, 3, 4, 5], B = [1, 1, 1, 1]
+P2 -> A = [4, 5, 6, 7], B = [2, 2, 2, 2]
+P3 -> A = [6, 7, 8, 9], B = [3, 3, 3, 3]
+
+Si todos los procesos ejecutan la siguiente operación colectiva, ¿cómo quedara el array B en el proceso root como resultado?
+MPI_Reduce (A, B, 1, MPI_INT, MPI_SUM, 2, MPI_COMM_WORLD)
+
+Respuesta:
+[12, 2, 2, 2]
+
+Explicación:
+Solo se suma en el primer elemento ya que el el tercer parametro dice que solo se va a enviar un elemento, el primero. Como hay un sum, se suman todos los elementos de la rpimera posición. El dos nos dice que se almacenan en el proceso 2, ese es nuestro root. Como tambien es el priemr lemento solo se modifica el priemr elemento de este array B, el resto de elementos se quedan igual.
+
+--------------------------------------------------------------------------------------------
+Tenemos cuatro procesos, cada uno con un array A de cuatro enteros. Inicialmnete los avlroes de estos arrays son:
+P0 -> A = [0, 0, 0, 0]
+P1 -> A = [1, 1, 1, 1]
+P2 -> A = [2, 2, 2, 2]
+P3 -> A = [3, 3, 3, 3]
+
+Despues de que todos procesos ejecuten una cierta colectiva el valor de A es:
+P0 -> A = [3, 0, 0, 0]
+P1 -> A = [3, 1, 1, 1]
+P2 -> A = [3, 2, 2, 2]
+P3 -> A = [3, 3, 3, 3]
+
+Respuesta:
+MPI_Bcast (A, 1, MPI_INT, 3 MPI_COMM_WORLD)
+
+Explicación:
+Se restrasmpute un elemnto, el primero del root (proceso tres) al resto de procesos. Al ser solo un elemento se hace a la posicion 0 de cada array.
+
+--------------------------------------------------------------------------------------------Tenemos cautro procesos, cada uno dos arrays, Ay B, de cuatro enteros cada uno. Inicialmente
+los valores de estos arrays son:
+P0 -> A = B = [0, 0, 0, 0]
+P1 -> A = B = [1, 1, 1, 1]
+P2 -> A = B = [2, 2, 2, 2]
+P3 -> A = B = [3, 3, 3, 3]
+
+Despues de que todos los procesos ejecuten una cierta colectiva de MPI el valor de B es (el array A queda igual):
+P0 -> A = B = [0, 6, 6, 6]
+P1 -> A = B = [1, 1, 1, 1]
+P2 -> A = B = [2, 2, 2, 2]
+P3 -> A = B = [3, 3, 3, 3]
+
+Respuesta:
+MPI_Reduce (A, &B[1], 3, MPI_INT, MPI_SUM, 0, MPI_COMM_WORLD)
+
+Explicación:
+Se empeiza en el elemento 1 del array B, y se suma el de los otros 3 arrays. Es el en proceso 0 pq hay un 0 como el penultimo elemento de la función. Y es &B[1] pq no es un unico elemnto si no todos a partir de esa posición.
+
+--------------------------------------------------------------------------------------------
+Tenemos cuatro proecesos, cada uno con dos arrays, A y B de cautro enteros cada uno. Incialmente los valores de estos arrays son:
+P0 -> A = [0, 1, 2, 3], B = [0, 0, 0, 0]
+P1 -> A = [4, 5, 6, 7], B = [0, 0, 0, 0]
+P2 -> A = [8, 9, 10, 11], B = [0, 0, 0, 0]
+P3 -> A = [12, 13, 14, 15], B = [0, 0, 0, 0]
+
+Si todos los procesos ejecutan la siguiente operación colectiva, ¿cual sera el resultado?
+MPI_Scatter (A, 4, MPI_INT, B, 1, MPI_INT, 0, MPI_COMM_WORLD)
+
+Repuesta:
+Los parametros de la función son incorrectos.
+
+Explicación:
+Está mal ya que se envian 4 elemntos pero solo se espera recibir un elemento y eso es cuanto menos un poco sus.
+
+--------------------------------------------------------------------------------------------
+Tenemos cuatro procesos, cada uno con dos arrays, A y B, de cautr enteros cada uno. Inicialmente los valores de estos arrays son:
+P0 -> A = [0, 0, 0, 0], B = [0, 0, 0, 0]
+P1 -> A = [1, 1, 1, 1], B = [0, 0, 0, 0]
+P2 -> A = [2, 2, 2, 2], B = [0, 0, 0, 0]
+P3 -> A = [3, 3, 3, 3], B = [0, 0, 0, 0]
+
+Si todos los procesos ejecutan la siguiente operación colectiva, ¿cual sera el resultado?
+MPI_Gather (&A[3], 1, MPI_INT, B, 1, MPI_INT, 3, MPI_COMM_WORLD)
+
+Respuesta:
+El array A no se modifica. El array B será [0, 1, 2, 3] solo en el proceso root.
+
+Explicación:
+
+Como se envia un entero pro proceso y con el gather es el proceso root sabemos que va a enviar el ultimo elemnto de cada proceso. Y estas se van a guardar solo en el proceso root.
+
+--------------------------------------------------------------------------------------------
+Tenemos 4 procesos, cada uno con dos arrays, A y B, de cuatro enteros cada uno. Inicialemnte los valores de estos arrays son:
+P0 -> A = B = [0, 0, 0, 0]
+P1 -> A = B = [1, 1, 1, 1]
+P2 -> A = B = [2, 2, 2, 2]
+P3 -> A = B = [3, 3, 3, 3]
+
+Despues de que todos los procesos ejecuten unas ciertas colectivas de MPI el valor de B es (el array A no se modifica): 
+P0 -> B = [0, 0, 0, 0]
+P1 -> B = [6, 6, 0, 0]
+P2 -> B = [2, 2, 2, 2]
+P3 -> B = [3, 3, 3, 3]
+
+Respuesta:
+MPI_Reduce (A, B, 2, MPI_INT, MPI_SUM, 1, MPI_COMM_WORLD)
+MPI_Reduce (&A[2], &B[2], 2, MPI_INT, MPI_PROD, 1, MPI_COMM_WORLD)
+
+Explicación:
+El primer reduce es para los 6, se sumaria y depues de este paso el proceso 1 serian todo 6. El segundo reduce se hace en los dos ultimos elementos y se hace el producto de todo, y el producto de algo por 0 simpre va a ser 0.
+
+--------------------------------------------------------------------------------------------
+Tenemos 4 procesosm cada uno con dos arrays, Ay B, de cuatro enteros cada uno. Inicialmente los valores de estos arrays son:
+P0 -> A = [0, 0, 0, 0], B = [0, 0, 0, 0]
+P1 -> A = [1, 1, 1, 1], B = [0, 0, 0, 0]
+P2 -> A = [2, 2, 2, 2], B = [0, 0, 0, 0]
+P3 -> A = [3, 3, 3, 3], B = [0, 0, 0, 0]
+
+Si todos los procesos ejecutan la siguiente secunaia de oepraciones colectivas, ¿cual sera el resultado?
+MPI_Gather (A, 1, MPI_INT, B, 1, MPI_INT, 3, MPI_COMM_WORLD);
+MPI_Bcast (B, 4, MPI_INT, 0, MPI_COMM_WORLD);
+
+Respuesta:
+El array A no se modifica. El array B será [0, 0, 0, 0] en todos los procesos.
+
+Explicación:
+Aunque primero se hacen cosas en el Gather estas son en el procesotres y en el bcast envia a todos los lementos del proceso 0 y estos no han sido modificados asi que van a aser en todas los valores del array B del proceso 0.
+
+--------------------------------------------------------------------------------------------
+Tenemos cuatro procesos, cad uno con un array A de cuatro enteros y una varieble var de tipo entero. Inicialmente cuentan con los siguientes valores:
+P0 -> A = [0, 1, 2, 3], var = 0
+P1 -> A = [0, 1, 2, 3], var = 1
+P2 -> A = [0, 1, 2, 3], var = 2
+P3 -> A = [0, 1, 2, 3], var = 3
+
+Si los procesos se ejecutn con la siguiente colectiva ¿cual sera el contenido del array A en el proceso 3?
+MPI_Bcast (A, var, MPI_INT, 0, MPI_COMM_WORLD)
+
+Respuesta:
+Los parametros de la función son incorrectos.
+
+Explicación:
+La cosa es que Bcast envia a todos la de la misma, el problema es que Var no es un numero per se, y puede tener varios valores, entones no es consistente.
+
+--------------------------------------------------------------------------------------------
+Tnemos cutro procesos, cada uno con dos arrays, A y B, de ocho enteros cada uno. Inicalmente los valores de estos arrays son:
+ P0 -> A = B = [0, 0, 0, 0, 4, 4, 4, 4]
+ P1 -> A = B = [1, 1, 1, 1, 5, 5, 5, 5]
+ P2 -> A = B = [2, 2, 2, 2, 6, 6, 6, 6]
+ P3 -> A = B = [3, 3, 3, 3, 7, 7, 7, 7]
+
+Dspues de que todos los procesos ejecuten una cierta colectiva de MPI el valor de B es (el array A queda igual):
+ P0 -> B = [1, 1, 0, 0, 4, 4, 4, 4]
+ P1 -> B = [1, 1, 1, 1, 5, 5, 5, 5]
+ P2 -> B = [5, 5, 2, 2, 6, 6, 6, 6]
+ P3 -> B = [5, 5, 3, 3, 7, 7, 7, 7]
+
+Respuesta:
+MPI_Scatter (A, 2, MPI_INT, B, 2, MPI_INT, 1, MPI_COMM_WORLD)
+
+Explicación:
+Se cambian dos elementos y es así ya que simpre pilla de base el proceso uno y los va pillando de dos en dos y sustituyendo. El p0 se hace los ddos primero slemntos del p1, el p1 son los dos segundos elementos de si mismo, la p2 los dos terceros elemntos de la p1 (de ahi que pase de unos a cincos) y las de p3 con la ultima pareja de p1.
+
+--------------------------------------------------------------------------------------------
+Tnemos cuatro procesos, cada uno un array A de cuatro enteros, inicialmente los valores de los arrays son:
+P0 -> A = [0, 0, 0, 0]
+P1 -> A = [1, 1, 1, 1]
+P2 -> A = [2, 2, 2, 2]
+P3 -> A = [3, 3, 3, 3]
+
+Dpues de que todos los procesos ejecuten cierta colectiva de MPI el valor de A es: 
+P0 -> A = [1, 1, 1, 1]
+P1 -> A = [1, 1, 1, 1]
+P2 -> A = [1, 1, 1, 1]
+P3 -> A = [1, 1, 1, 1]
+
+Respuesta:
+MPI_Bcast (A, 4, MPI_INT, 1, MPI_COMM_WORLD)
+
+Explicación:
+Ya que se retrasmiten los 4 elemntos del prtoceso 1 al resto de procesos
+
+--------------------------------------------------------------------------------------------
+Tenemos cuatro procesos, cada uno con dos arrays, A y B, de cuatro enteros cada uno. Inicialmnete los valores de los arrays son:
+P0 -> A = [0, 0, 0, 0], B = [0, 0, 0, 0]
+P1 -> A = [1, 1, 1, 1], B = [0, 0, 0, 0]
+P2 -> A = [2, 2, 2, 2], B = [0, 0, 0, 0]
+P3 -> A = [3, 3, 3, 3], B = [0, 0, 0, 0]
+
+Si todos los procesos ejecutan la siguiente operación colectiva, ¿que valores tendrá el proceso root en el array B como resultado?
+MPI_Gather (A, 1, MPI_INT, B, 1, MPI_INT, 3 MPI_COMM_WORLD)
+
+Respuesta:
+[0, 1, 2, 3]
+
+Explicación:
+Pilla el primer elemnto de cad proceso y los guarda en el root, en este caso el proeceso tres. Pero va pasadno pillando el primer elemnto de la p0, el de p2...
+
+--------------------------------------------------------------------------------------------
+Tenemos 4 procesos, cada uno con dos arrays, A y B, de cuatro enteros cada uno. Inicialemnte los valores de estos arrays son:
+P0 -> A = B = [0, 0, 0, 0]
+P1 -> A = B = [1, 1, 1, 1]
+P2 -> A = B = [2, 2, 2, 2]
+P3 -> A = B = [3, 3, 3, 3]
+
+Despues de que todos los procesos ejecuten una cierta colectiva de MPI el valor de B es (el array A queda igual):
+P0 -> B = [0, 0, 0, 0]
+P1 -> B = [1, 1, 1, 1]
+P2 -> B = [2, 2, 2, 2]
+P3 -> B = [6, 6, 6, 6]
+
+Respuesta:
+MPI_Reduce (A, B, 4 MPI_INT, MPI_SUM, 3, MPI_COMM_WORLD)
+
+Explicación:
+Se hace la suma de todos los elementos, en cada posición de todos y se almacena en el root, en este caso el proceso tres.
+
+--------------------------------------------------------------------------------------------
+Tenemos cuatro preocesos, cada uno con dos arrays, A y B, de ocho enteros cada uno. Inicialmnete los valores de esos arrays son:
+P0 -> A = B = [0, 0, 0, 0, 4, 4, 4, 4]
+P1 -> A = B = [1, 1, 1, 1, 5, 5, 5, 5]
+P2 -> A = B = [2, 2, 2, 2, 6, 6, 6, 6]
+P3 -> A = B = [3, 3, 3, 3, 7, 7, 7, 7]
+
+Dspues de que todos los rpocesos ejecuten una cierta colectiva de MPI el valor de B es (el array A queda igual):
+P0 -> B = [0, 0, 0, 0, 4, 4, 4, 4]
+P1 -> B = [1, 1, 1, 1, 5, 5, 5, 5]
+P2 -> B = [2, 2, 2, 2, 6, 6, 6, 6]
+P3 -> B = [4, 5, 6, 7, 7, 7, 7, 7]
+
+Resultado:
+MPI_Gather (&A[4], 1, MPI_INT, B, 1, MPI_INT, 3, MPI_COMM_WORLD)
+
+Explicación:
+Lo cambia en el root, en este caso el proceso tres. Ahi lo que haces es que desde el 4 elemento de cada array A lo guarda en el root. Pilla cada elemento numero de 4 de cada uno de los procesos y los va guadando en orden en el root. Los ulrimos no se modifican ya que solo hay 4 procesos pero ocho elementos en ese array.
+
+--------------------------------------------------------------------------------------------
+Tenemos cuatro proecesos, cada uno con dos arrays, A y B de cautro enteros cada uno. Incialmente los valores de estos arrays son:
+P0 -> A = [0, 1, 2, 3], B = [0, 0, 0, 0]
+P1 -> A = [0, 1, 2, 3], B = [0, 0, 0, 0]
+P2 -> A = [0, 1, 2, 3], B = [0, 0, 0, 0]
+P3 -> A = [0, 1, 2, 3], B = [0, 0, 0, 0]
+
+Si todos los procesos ejecutan la siguiente oepración colectiva ¿cual es el resultado?
+MPI_Scatter (A, 1, MPI_INT, &B[2], 1, MPI_INT, 3, MPI_COMM_WORLD);
+
+Resultado:
+El array A no se modifica. El array B tendrá el rango del proceso en B[2], y "0" en las demás posiciones.
+
+Explicación:
+Ninguna del resto tenia sentido.
+
+---------------------------------------Examen Eric------------------------------------------
+--------------------------------------------------------------------------------------------Tnemos cuatro preocesos, cada uno con un array A de cuatro enteros y una variable "suma" de tipo entero. Inicialmente cuenta con los siguintes valores:
+P0 -> A = [0, 0, 0, 0], suma = 0
+P1 -> A = [1, 1, 1, 1], suma = 4
+P2 -> A = [2, 2, 2, 2], suma = 8
+P3 -> A = [3, 3, 3, 3], suma = 12
+
+Si todos los procesos ejecutan la siguiente oepracion colectia, ¿cual sera el resultado?
+MPI_Reduce (A, &suma, 4 MPI_INT, MPI_SUM, 0, MPI_COMM_WORLD)
+
+Resultado:
+Los parametros de la función son incorrectos
+
+Explicación:
+Si sum es un solo int solo peude almacenar un valor, pero deberia de poder almacenar cuatro, uno por "columna"
+
+--------------------------------------------------------------------------------------------
+Tnemos cuatro preocesos, cada uno con un array A de cuatro enteros y una variable "suma" de tipo entero. Inicialmente cuenta con los siguintes valores:
+P0 -> A = [0, 0, 0, 0], suma = 0
+P1 -> A = [1, 1, 1, 1], suma = 4
+P2 -> A = [2, 2, 2, 2], suma = 8
+P3 -> A = [3, 3, 3, 3], suma = 12
+
+Si todos los procesos ejecutan la siguiente oepracion colectia, ¿cual sera el resultado?
+MPI_Gather (&suma, 1, MPI_INT, A, 1, MPI_INT, 0, MPI_COMM_WORLD)
+
+Respuesta:
+El array A tendrá el valor [0, 4, 8, 12] en el proceso root.
+
+Explicación:
+Ya que pilla el valor de suma, un valor, de cada proceso y lo manda de nuevo al array A del proceso 0. 
+
+--------------------------------------------------------------------------------------------
+Tenemos 4 procesos, cada uno con un array de cuatro enteros. Inicialmnete los valores de este array son:
+P0 -> A = [0, 0, 0, 0]
+P1 -> A = [1, 1, 1, 1]
+P2 -> A = [2, 2, 2, 2]
+P3 -> A = [3, 3, 3, 3]
+
+Si todos los procesos ejecutan la siguiente oepracion colectiva ¿que valores tendra el proceso 0 en el array A como resultado?
+MPI_Bcast (A, 2, MPI_INT, 3, MPI_COMM_WORLD)
+
+Resultado:
+[3, 3, 0, 0]
+
+Explicación:
+Se pillan los dos primeros elemntos del proceso tres (root) y se le ponen a los dos primeros elemntos de cada uno de los procesos. Al pedirnos el del proceso 0 se sustituten los dso rpiermos elemtnos, los otrod dos siguen iguales.
+
+--------------------------------------------------------------------------------------------
+Tenemos 4 procesos, cada uno con dos arrays, A y B, de cuatro enteros cada uno. Inicialemnte los valores de estos arrays son:
+P0 -> A = B = [0, 0, 0, 0]
+P1 -> A = B = [1, 1, 1, 1]
+P2 -> A = B = [2, 2, 2, 2]
+P3 -> A = B = [3, 3, 3, 3] 
+
+Despues de que todos los procesos ejecuten unas ciertas colectivas de MPI el valor de B es (el array A queda igual):
+P0 -> B = [0, 0, 2, 3]
+P1 -> B = [0, 1, 2, 3]
+P2 -> B = [2, 2, 2, 3]
+P3 -> B = [3, 3, 2, 3] 
+
+Respuesta:
+MPI_Scatter(A, 1, MPI_INT, &B[3], 1, MPI_INT, 3, MPI_COMM_WORLD);
+MPI_Bcast(&B[2], 2, MPI_INT, 2, MPI_COMM_WORLD);
+
+Explicación:
+Primero se sustituye el ulrimo elemnto de cada array de cada proceso por el primer elemnto del prcoeso tres, así la última columna pasa a ser en todas treses. Luego con el Bcast pillas los dos ultimos elemntos del segundo proeceso [2, 3] y los colocas en esas misma posiciones en todos los procesos. Lo que no se es porque el primer elemento del proceso uno pasa a ser 0.
+
+--------------------------------------------------------------------------------------------
+Tenemos 4 procesos, cada uno con dos arrays, A y B, de cuatro enteros cada uno. Inicialemnte los valores de estos arrays son:
+P0 -> A = B = [0, 0, 0, 0]
+P1 -> A = B = [1, 1, 1, 1]
+P2 -> A = B = [2, 2, 2, 2]
+P3 -> A = B = [3, 3, 3, 3] 
+
+Despues de que todos los procesos ejecuten unas ciertas colectivas de MPI el valor de B es (el array A queda igual):
+P0 -> B = [0, 0, 0, 0]
+P1 -> B = [1, 1, 1, 1]
+P2 -> B = [0, 2, 2, 2]
+P3 -> B = [3, 3, 3, 3] 
+
+Respuesta:
+MPI_Reduce (A, B, 1, MPI_INT, MPI_PROD, 2, MPI_COMM_WORLD)
+
+Explicación:
+Se hace la multiplicación del elemnto numero 0 de cada array y se pone en el elemento 0 del proceso dos.
+
+--------------------------------------------------------------------------------------------
+Tenemos 4 procesos, cada uno con dos arrays, A y B, de cuatro enteros cada uno. Inicialemnte los valores de estos arrays son:
+P0 -> A = B = [0, 0, 0, 0]
+P1 -> A = B = [1, 1, 1, 1]
+P2 -> A = B = [2, 2, 2, 2]
+P3 -> A = B = [3, 3, 3, 3] 
+
+Despues de que todos los procesos ejecuten unas ciertas colectivas de MPI el valor de B es (el array A queda igual):
+P0 -> B = [0, 0, 0, 0]
+P1 -> B = [1, 1, 1, 1]
+P2 -> B = [2, 2, 2, 2]
+P3 -> B = [0, 1, 2, 3] 
+
+Respuesta:
+MPI_Gather (A, 1, MPI_INT, B, 1, MPI_INT, 3, MPI_COMM_WORLD);
+
+Explicación:
+Se pone el primer elemnto de cada array de cada proceso y se guarda en el root, en el proceso tres.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
